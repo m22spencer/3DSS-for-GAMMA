@@ -58,7 +58,7 @@ Texture2D s_heat_map;
 TextureCube s_reflection;
 
 float4 m_hud_params;
-float4 m_hud_fov_params;
+float4 m_hud_fov_params;          // [camera_magnification, texture_magnification, min_magnification, max_magnification]
 float4 ogse_c_screen;
 uniform float4 s3ds_param_1;
 uniform float4 s3ds_param_2;
@@ -383,6 +383,12 @@ float3 tonemap(float3 color, float3 v_pos)
 
 float4 main(vf I) : SV_Target
 {
+	float camera_magnification  = m_hud_fov_params.x;
+	float texture_magnification = m_hud_fov_params.y;
+	float min_magnification     = m_hud_fov_params.z;
+	float max_magnification     = m_hud_fov_params.w;
+	float total_magnification   = camera_magnification * texture_magnification;
+
 	float RETICLE_SIZE = s3ds_param_1.x;
 	float EYE_RELIEF = s3ds_param_1.y;
 	float EXIT_PUPIL = s3ds_param_1.z;
@@ -394,7 +400,7 @@ float4 main(vf I) : SV_Target
 	float MAX_ZOOM_FOV = m_hud_fov_params.x * 0.75;
 	float REFLECTION_HUE = s3ds_param_2.x;
 	int MIN_ZOOM_1X = s3ds_param_2.z;
-	float ZOOM_FACTOR = is_svp ? 1.0 : s3ds_param_2.w;
+	float ZOOM_FACTOR = texture_magnification;
 	
 	int IMAGE_TYPE = s3ds_param_3.x;
 	int RETICLE_TYPE = s3ds_param_3.y;

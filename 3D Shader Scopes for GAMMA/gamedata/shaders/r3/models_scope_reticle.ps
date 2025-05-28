@@ -396,11 +396,11 @@ float4 main(vf I) : SV_Target
 
 	bool is_svp = m_hud_params.y > 0.001;
 	
-	float MIN_ZOOM_FOV = m_hud_fov_params.y * 0.75;
-	float MAX_ZOOM_FOV = m_hud_fov_params.x * 0.75;
+	float MIN_ZOOM_FOV = 60.0/min_magnification;
+	float MAX_ZOOM_FOV = 60.0/max_magnification;
 	float REFLECTION_HUE = s3ds_param_2.x;
 	int MIN_ZOOM_1X = s3ds_param_2.z;
-	float ZOOM_FACTOR = texture_magnification;
+	float ZOOM_FACTOR = 1.0;
 	
 	int IMAGE_TYPE = s3ds_param_3.x;
 	int RETICLE_TYPE = s3ds_param_3.y;
@@ -428,9 +428,7 @@ float4 main(vf I) : SV_Target
 	
     float3 V_tangent = normalize(float3(dot(-I.v_P, TBN[0]), dot(-I.v_P, TBN[1]), dot(-I.v_P, TBN[2])));
 
-	float ffov = is_svp 
-		? m_hud_params.y * 0.75      // second viewport zoom factor
-		: ogse_c_screen.x;           // current_fov
+	float ffov = 60.0/total_magnification;
 	
 	float current_zoom = max(MIN_ZOOM_FOV / ffov, 1);
 	float zoom_part = max(0, (ffov - MIN_ZOOM_FOV) / (MAX_ZOOM_FOV - MIN_ZOOM_FOV));
@@ -560,7 +558,7 @@ float4 main(vf I) : SV_Target
 	float2 screen_tc = I.hpos.xy * screen_res.zw;
 	float zoom = lerp(1, IMAGE_SIZE, m_hud_params.x);
 	float shift = lerp(0, IMAGE_PROJECT, m_hud_params.x);
-	float2 scope_tc = (1.0 / zoom) * (screen_tc.xy - 0.5) + 0.5;
+	float2 scope_tc = (1.0 / zoom) * (1.0 / texture_magnification) * (screen_tc.xy - 0.5) + 0.5;
 	V_tangent.x = V_tangent.x / screen_res.x * screen_res.y;
 	scope_tc = scope_tc + V_tangent.xy * shift;
 

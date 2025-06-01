@@ -14,8 +14,6 @@
 
 // The only difference between models_scope_reticle.ps and models_scope_reticle_precise is SCOPE_PRECISION_MODE value
 
-#define SCOPE_PRECISION_MODE 0
-
 #include "common.h"
 #include "nv_utils.h"
 #include "thermal_utils.h"
@@ -383,6 +381,9 @@ float3 tonemap(float3 color, float3 v_pos)
 
 float4 main(vf I) : SV_Target
 {
+	if (m_hud_params.w)
+		discard;
+
 	float RETICLE_SIZE = s3ds_param_1.x;
 	float EYE_RELIEF = s3ds_param_1.y;
 	float EXIT_PUPIL = s3ds_param_1.z;
@@ -415,10 +416,11 @@ float4 main(vf I) : SV_Target
 		RETICLE_PROJECT = 0;
 	
 	float3x3 TBN;
-	if (SCOPE_PRECISION_MODE == 1)
+	#ifdef SCOPE_PRECISION_MODE
 		TBN = float3x3(I.v_T + 0.0039, I.v_B + 0.0039, I.v_N);
-	else
+	#else
 		TBN = cotangent_frame(I.v_N, I.v_P, I.tc0.xy);
+	#endif
 	
     float3 V_tangent = normalize(float3(dot(-I.v_P, TBN[0]), dot(-I.v_P, TBN[1]), dot(-I.v_P, TBN[2])));
 

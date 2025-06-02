@@ -3,9 +3,15 @@
 #include "nv_utils.h"
 #include "thermal_utils.h"
 
+#define IT_THERMAL 2
+#define IT_THERMAL_COLOR 3
+
 Texture2D s_scope;
 Texture2D s_heat_map;
 
+uniform float4 markswitch_current;
+
+uniform float4 s3ds_param_3;
 uniform float4 m_hud_params;
 float4 eye_direction_lerp;
 float4 eye_position_lerp;
@@ -25,8 +31,9 @@ float2 clampMagnitude(float2 v, float l)
 
 float4 main(p_screen I,  float4 pos2d : SV_POSITION) : SV_Target
 {
-	bool SVP_FRAME = m_hud_params.w > 0;
-    if(SVP_FRAME) {
+    int IMAGE_TYPE = s3ds_param_3.x;
+    bool SVP_FRAME = m_hud_params.w > 0;
+    if(SVP_FRAME && (IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && markswitch_current.x < 2) {
         gbuffer_data gbd = gbuffer_load_data(I.tc0 / screen_res.xy, I.tc0, 0);
 		float3 back = infrared(gbd, I.tc0 * screen_res.xy, I.tc0 / screen_res.xy);
 

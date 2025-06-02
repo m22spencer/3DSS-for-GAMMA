@@ -34,9 +34,6 @@ float4 main(p_screen I,  float4 pos2d : SV_POSITION) : SV_Target
     int IMAGE_TYPE = s3ds_param_3.x;
     bool SVP_FRAME = m_hud_params.w > 0;
     if(SVP_FRAME && (IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && markswitch_current.x < 2) {
-        gbuffer_data gbd = gbuffer_load_data(I.tc0 / screen_res.xy, I.tc0, 0);
-		float3 back = infrared(gbd, I.tc0 * screen_res.xy, I.tc0 / screen_res.xy);
-
 		float3 c = lerp( s_heat_map.Sample(smp_base, I.tc0).rgb
 					   , s_image.Sample(smp_base, I.tc0).rgb
 					   , 0.7);

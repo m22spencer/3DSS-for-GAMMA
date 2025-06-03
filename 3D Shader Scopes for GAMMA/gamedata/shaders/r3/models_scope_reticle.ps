@@ -113,9 +113,9 @@ float4 sample_shadow(float2 tc, float shadow_width)
 	return float4(0, 0, 0, a);
 }
 
-float4 sample_zoom_switch_shadow(float2 tc, float min_zoom, float max_zoom, float ffov)
+float4 sample_zoom_switch_shadow(float2 tc, float min_zoom, float max_zoom, float CUR_MAG_INV)
 {
-	float shift = smoothstep(min_zoom, max_zoom, ffov);
+	float shift = smoothstep(min_zoom, max_zoom, CUR_MAG_INV);
 	float a = smoothstep(1 - 0.1, 1, distance(tc, float2(0.5 + shift * 3, 0.5)));
 	float b = smoothstep(1 - 0.4, 1, distance(tc, float2(-2.5 + shift * 3, 0.5)));
 	return float4(0, 0, 0, a * b);
@@ -389,8 +389,9 @@ float4 main(vf I) : SV_Target
 
 	bool is_svp = m_hud_params.y > 0.001;
 	
-	float MIN_ZOOM_FOV = m_hud_fov_params.y;
-	float MAX_ZOOM_FOV = m_hud_fov_params.x;
+	float MIN_MAG_INV = 1 / m_hud_fov_params.x;
+	float MAX_MAG_INV = 1 / m_hud_fov_params.y;
+	float CUR_MAG_INV = 1 / m_hud_fov_params.w;
 	float REFLECTION_HUE = s3ds_param_2.x;
 	int MIN_ZOOM_1X = s3ds_param_2.z;
 	float ZOOM_FACTOR = 1.0;
@@ -422,13 +423,10 @@ float4 main(vf I) : SV_Target
 	
     float3 V_tangent = normalize(float3(dot(-I.v_P, TBN[0]), dot(-I.v_P, TBN[1]), dot(-I.v_P, TBN[2])));
 
-	float ffov = is_svp 
-		? m_hud_params.y * 0.75      // second viewport zoom factor
-		: m_hud_fov_params.x;        // target_fov
 	
-	float current_zoom = max(MIN_ZOOM_FOV / ffov, 1);
-	float zoom_part = max(0, (ffov - MIN_ZOOM_FOV) / (MAX_ZOOM_FOV - MIN_ZOOM_FOV));
-	if (MAX_ZOOM_FOV == MIN_ZOOM_FOV) {
+	float current_zoom = max(MIN_MAG_INV / CUR_MAG_INV, 1);
+	float zoom_part = max(0, (CUR_MAG_INV - MIN_MAG_INV) / (MAX_MAG_INV - MIN_MAG_INV));
+	if (MAX_MAG_INV == MIN_MAG_INV) {
 		zoom_part = 0;
 	}
 	
@@ -514,7 +512,7 @@ float4 main(vf I) : SV_Target
 	float4 zoom_switch_shadow = float4(0, 0, 0, 0);
 	if (RETICLE_TYPE == RT_SPECTER)
 	{
-		zoom_switch_shadow = sample_zoom_switch_shadow(reticle_lens_tc, MIN_ZOOM_FOV, MAX_ZOOM_FOV, ffov);
+		zoom_switch_shadow = sample_zoom_switch_shadow(reticle_lens_tc, MIN_MAG_INV, MAX_MAG_INV, CUR_MAG_INV);
 	}
 	
 	// Sight bound

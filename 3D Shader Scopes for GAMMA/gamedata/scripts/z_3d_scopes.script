@@ -219,7 +219,12 @@ function on_game_start()
 
 			local zf_over_mag_const = 120;
 
-			local max_scope_zf = get(info, "scope_zoom_factor", zf_over_mag_const)
+			local max_scope_zf = get(info, "scope_zoom_factor", 0)
+
+			if (max_scope_zf < 1) then
+				return
+			end
+
 			local dynamic_zoom_s = get(info, "scope_dynamic_zoom", "off")
 			local dynamic_zoom = dynamic_zoom_s == "true" or dynamic_zoom_s == "on"
 			local min_scope_zf = get(info, "min_scope_zoom_factor", dynamic_zoom and zf_over_mag_const or max_scope_zf)

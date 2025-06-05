@@ -123,9 +123,9 @@ float4 sample_shadow(float2 tc, float shadow_width)
 	return float4(0, 0, 0, a);
 }
 
-float4 sample_zoom_switch_shadow(float2 tc, float min_zoom, float max_zoom)
+float4 sample_zoom_switch_shadow(float2 tc)
 {
-	float shift = smoothstep(min_zoom, max_zoom, zoomRotateFactor());
+	float shift = zoomPercent();
 	float a = smoothstep(1 - 0.1, 1, distance(tc, float2(0.5 + shift * 3, 0.5)));
 	float b = smoothstep(1 - 0.4, 1, distance(tc, float2(-2.5 + shift * 3, 0.5)));
 	return float4(0, 0, 0, a * b);
@@ -394,8 +394,6 @@ float4 main(vf I) : SV_Target
 	float EXIT_PUPIL = s3ds_param_1.z;
 	int FFP = s3ds_param_1.w;
 	
-	float MIN_ZOOM_FOV = m_hud_fov_params.y * 0.75;
-	float MAX_ZOOM_FOV = m_hud_fov_params.x * 0.75;
 	float REFLECTION_HUE = s3ds_param_2.x;
 	int MIN_ZOOM_1X = s3ds_param_2.z;
 	float ZOOM_FACTOR = s3ds_param_2.w;
@@ -511,7 +509,7 @@ float4 main(vf I) : SV_Target
 	float4 zoom_switch_shadow = float4(0, 0, 0, 0);
 	if (RETICLE_TYPE == RT_SPECTER)
 	{
-		zoom_switch_shadow = sample_zoom_switch_shadow(reticle_lens_tc, MIN_ZOOM_FOV, MAX_ZOOM_FOV);
+		zoom_switch_shadow = sample_zoom_switch_shadow(reticle_lens_tc);
 	}
 	
 	// Sight bound

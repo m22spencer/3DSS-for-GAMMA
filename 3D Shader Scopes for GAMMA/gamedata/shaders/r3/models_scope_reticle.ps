@@ -66,6 +66,19 @@ uniform float4 shader_scope_params;
 float curMag() { return shader_scope_params.x; }
 float minMag() { return shader_scope_params.y; }
 float maxMag() { return shader_scope_params.z; }
+float isSVPActive() { return shader_scope_params.w < 0; }
+
+float mag_between_fovs(float current, float desired) {
+	return 1.0 / (tan(desired/2.0) / tan(current/2.0));
+}
+
+float digitalZoom() {
+    return isSVPActive()
+		? 1.0
+		: max( 1.0
+		     , mag_between_fovs( ogse_c_screen.x * (3.14159/180.0)
+		                       , shader_scope_params.w));
+}
 
 float zoomRotateFactor() { return ogse_c_screen.x; }
 float zoomPercent() {
@@ -538,7 +551,7 @@ float4 main(vf I) : SV_Target
 	float2 screen_tc = I.hpos.xy * screen_res.zw;
 	float zoom = lerp(1, IMAGE_SIZE, m_hud_params.x);
 	float shift = lerp(0, IMAGE_PROJECT, m_hud_params.x);
-	float2 scope_tc = (1.0 / zoom) * (screen_tc.xy - 0.5) + 0.5;
+	float2 scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) + 0.5;
 	V_tangent.x = V_tangent.x / screen_res.x * screen_res.y;
 	scope_tc = scope_tc + V_tangent.xy * shift;
 

@@ -62,7 +62,17 @@ uniform float4 markswitch_current;
 uniform float4 markswitch_color;
 uniform float4 shader_param_8;
 
+uniform float4 shader_scope_params;
+float curMag() { return shader_scope_params.x; }
+float minMag() { return shader_scope_params.y; }
+float maxMag() { return shader_scope_params.z; }
+
 float zoomRotateFactor() { return ogse_c_screen.x; }
+float zoomPercent() {
+	return minMag() == maxMag()
+		? 0.0
+		: (curMag() - minMag()) / (maxMag() - minMag());
+}
 
 struct vf
 {
@@ -404,10 +414,7 @@ float4 main(vf I) : SV_Target
     float3 V_tangent = normalize(float3(dot(-I.v_P, TBN[0]), dot(-I.v_P, TBN[1]), dot(-I.v_P, TBN[2])));
 	
 	float current_zoom = max(MIN_ZOOM_FOV / zoomRotateFactor(), 1);
-	float zoom_part = max(0, (zoomRotateFactor() - MIN_ZOOM_FOV) / (MAX_ZOOM_FOV - MIN_ZOOM_FOV));
-	if (MAX_ZOOM_FOV == MIN_ZOOM_FOV) {
-		zoom_part = 0;
-	}
+	float zoom_part = zoomPercent();
 	
 	if (MIN_ZOOM_1X) {
 		IMAGE_PROJECT *= zoom_part;

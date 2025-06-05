@@ -396,7 +396,6 @@ float4 main(vf I) : SV_Target
 	
 	float REFLECTION_HUE = s3ds_param_2.x;
 	int MIN_ZOOM_1X = s3ds_param_2.z;
-	float ZOOM_FACTOR = s3ds_param_2.w;
 	
 	int IMAGE_TYPE = s3ds_param_3.x;
 	int RETICLE_TYPE = s3ds_param_3.y;
@@ -405,10 +404,6 @@ float4 main(vf I) : SV_Target
 	
 	float3 LENS_COLOR = s3ds_param_4.xyz;
 	int SETTINGS = s3ds_param_4.w;
-
-	// ZOOM_FACTOR = 1 => (0, 1); ZOOM_FACTOR = 1.5 => (0.4, 1.1)
-	float IMAGE_PROJECT = 0.8 * ZOOM_FACTOR - 0.8;
-	float IMAGE_SIZE = 0.2 * ZOOM_FACTOR + 0.8;
 	
 	float RETICLE_PROJECT = 10;
 	float SHADOW_WIDTH = 0.15;
@@ -426,11 +421,7 @@ float4 main(vf I) : SV_Target
 	
 	float current_zoom = curMag();
 	float zoom_part = zoomPercent();
-	
-	if (MIN_ZOOM_1X) {
-		IMAGE_PROJECT *= zoom_part;
-		IMAGE_SIZE = 1 + (IMAGE_SIZE - 1) * zoom_part;
-	}
+
 	
 	if (!SETTING(SETTINGS, ST_CHROMATISM)) {
 		CHROMA_POWER = 0;
@@ -547,11 +538,7 @@ float4 main(vf I) : SV_Target
 
 	// Back image
 	float2 screen_tc = I.hpos.xy * screen_res.zw;
-	float zoom = lerp(1, IMAGE_SIZE, m_hud_params.x);
-	float shift = lerp(0, IMAGE_PROJECT, m_hud_params.x);
 	float2 scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) + 0.5;
-	V_tangent.x = V_tangent.x / screen_res.x * screen_res.y;
-	scope_tc = scope_tc + V_tangent.xy * shift;
 
 	if (RETICLE_TYPE == RT_SPECTER) {
 		float smooth_zoom_part = smoothstep(0, 1, zoom_part);

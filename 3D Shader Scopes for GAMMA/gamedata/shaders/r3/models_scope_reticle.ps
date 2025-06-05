@@ -62,6 +62,8 @@ uniform float4 markswitch_current;
 uniform float4 markswitch_color;
 uniform float4 shader_param_8;
 
+float zoomRotateFactor() { return ogse_c_screen.x; }
+
 struct vf
 {
     float4 hpos : SV_Position;
@@ -100,7 +102,7 @@ float4 sample_shadow(float2 tc, float shadow_width)
 
 float4 sample_zoom_switch_shadow(float2 tc, float min_zoom, float max_zoom)
 {
-	float shift = smoothstep(min_zoom, max_zoom, ogse_c_screen.x);
+	float shift = smoothstep(min_zoom, max_zoom, zoomRotateFactor());
 	float a = smoothstep(1 - 0.1, 1, distance(tc, float2(0.5 + shift * 3, 0.5)));
 	float b = smoothstep(1 - 0.4, 1, distance(tc, float2(-2.5 + shift * 3, 0.5)));
 	return float4(0, 0, 0, a * b);
@@ -401,8 +403,8 @@ float4 main(vf I) : SV_Target
 	
     float3 V_tangent = normalize(float3(dot(-I.v_P, TBN[0]), dot(-I.v_P, TBN[1]), dot(-I.v_P, TBN[2])));
 	
-	float current_zoom = max(MIN_ZOOM_FOV / ogse_c_screen.x, 1);
-	float zoom_part = max(0, (ogse_c_screen.x - MIN_ZOOM_FOV) / (MAX_ZOOM_FOV - MIN_ZOOM_FOV));
+	float current_zoom = max(MIN_ZOOM_FOV / zoomRotateFactor(), 1);
+	float zoom_part = max(0, (zoomRotateFactor() - MIN_ZOOM_FOV) / (MAX_ZOOM_FOV - MIN_ZOOM_FOV));
 	if (MAX_ZOOM_FOV == MIN_ZOOM_FOV) {
 		zoom_part = 0;
 	}
@@ -555,7 +557,7 @@ float4 main(vf I) : SV_Target
 		}
 	} else {
 		bool blur = SETTING(SETTINGS, ST_NVG_BLUR) && floor(shader_param_8.x) != 0 || m_hud_params.x == 0;
-		back = back_image_sample(I.tc0, scope_tc, ogse_c_screen.x, CHROMA_POWER, blur, SETTING(SETTINGS, ST_CHROMATISM));
+		back = back_image_sample(I.tc0, scope_tc, zoomRotateFactor(), CHROMA_POWER, blur, SETTING(SETTINGS, ST_CHROMATISM));
 		back *= LENS_COLOR;
 	}
 

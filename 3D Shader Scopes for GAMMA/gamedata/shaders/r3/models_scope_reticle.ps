@@ -413,7 +413,7 @@ float4 main(vf I) : SV_Target
 	
     float3 V_tangent = normalize(float3(dot(-I.v_P, TBN[0]), dot(-I.v_P, TBN[1]), dot(-I.v_P, TBN[2])));
 	
-	float current_zoom = max(MIN_ZOOM_FOV / zoomRotateFactor(), 1);
+	float current_zoom = curMag();
 	float zoom_part = zoomPercent();
 	
 	if (MIN_ZOOM_1X) {

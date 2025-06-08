@@ -437,10 +437,11 @@ float4 main(vf I) : SV_Target
 		RETICLE_PROJECT = 0;
 	
 	float3x3 TBN;
-	if (SCOPE_PRECISION_MODE == 1)
+	#ifdef SCOPE_PRECISION_MODE
 		TBN = float3x3(I.v_T + 0.0039, I.v_B + 0.0039, I.v_N);
-	else
+	#else
 		TBN = cotangent_frame(I.v_N, I.v_P, I.tc0.xy);
+	#endif
 	
     float3 V_tangent = normalize(float3(dot(-I.v_P, TBN[0]), dot(-I.v_P, TBN[1]), dot(-I.v_P, TBN[2])));
 	

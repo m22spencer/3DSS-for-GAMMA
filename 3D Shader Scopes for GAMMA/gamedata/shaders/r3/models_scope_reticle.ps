@@ -67,6 +67,7 @@ float curMag() { return shader_scope_params.x; }
 float minMag() { return shader_scope_params.y; }
 float maxMag() { return shader_scope_params.z; }
 float isSVPActive() { return shader_scope_params.w < 0; }
+float isSVPFrame() { return m_hud_params.w > 0.5; }
 
 float mag_between_fovs(float current, float desired) {
 	return 1.0 / (tan(desired/2.0) / tan(current/2.0));
@@ -387,6 +388,30 @@ float3 tonemap(float3 color, float3 v_pos)
     return (color * (1 + color / fWhiteIntensitySQR)) / (color + 1);
 }
 
+// gbuffer & heat map access must occur during the active view rendering
+//    a prepass is required to apply effects accessing these buffers
+float3 preprocess(int SETTINGS, int IMAGE_TYPE, float2 scope_tc) {
+	float3 back;
+	if ((IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && markswitch_current.x < 2) {
+		float pixelate = SETTING(SETTINGS, ST_THERMAL_PIXELATION) ? int(curMag()) : 1;
+		if (!isSVPActive())
+			pixelate *= 0.5;  // Shader got a bit messed up when converting to mag, so fix it up with a hack here
+		scope_tc = (floor(scope_tc * screen_res.xy / pixelate) * pixelate + 0.5) / screen_res.xy;
+		gbuffer_data gbd = gbuffer_load_data(scope_tc, scope_tc * screen_res.xy, 0);
+		back = infrared(gbd, scope_tc * screen_res.xy, scope_tc);
+		if (markswitch_current.x == 1) {
+			back = 1 - back;
+		}
+		if (IMAGE_TYPE == IT_THERMAL_COLOR) {
+			back = s_heat_map.Sample(smp_base, float2(back.x, 0.5));
+		}
+	} else {
+		back = s_image.Sample(smp_base, scope_tc);
+	}
+
+	return back;
+}
+
 float4 main(vf I) : SV_Target
 {
 	float RETICLE_SIZE = s3ds_param_1.x;
@@ -429,6 +454,7 @@ float4 main(vf I) : SV_Target
 	
 	float lum = current_lum();
 	
+
 	// Sight reticle
 	float2 reticle_lens_tc = project(I.tc0, V_tangent.xy, RETICLE_PROJECT, RETICLE_SIZE);
 	float2 reticle_tc = project(I.tc0, V_tangent.xy, RETICLE_PROJECT, RETICLE_SIZE * (FFP || RETICLE_TYPE == RT_GIPERON ? current_zoom : 1));
@@ -540,6 +566,9 @@ float4 main(vf I) : SV_Target
 	float2 screen_tc = I.hpos.xy * screen_res.zw;
 	float2 scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) + 0.5;
 
+	if (isSVPFrame())
+		return float4(preprocess(SETTINGS, IMAGE_TYPE, scope_tc), 1.0);
+
 	if (RETICLE_TYPE == RT_SPECTER) {
 		float smooth_zoom_part = smoothstep(0, 1, zoom_part);
 		if (distance(I.tc0, float2(0.5 + smooth_zoom_part * 3, 0.5)) <= 1)
@@ -550,16 +579,9 @@ float4 main(vf I) : SV_Target
 
 	float3 back;
 	if ((IMAGE_TYPE == IT_THERMAL || IMAGE_TYPE == IT_THERMAL_COLOR) && markswitch_current.x < 2) {
-		float pixelate = SETTING(SETTINGS, ST_THERMAL_PIXELATION) ? int(current_zoom) : 1;
-		scope_tc = (floor(scope_tc * screen_res.xy / pixelate) * pixelate + 0.5) / screen_res.xy;
-		gbuffer_data gbd = gbuffer_load_data(scope_tc, scope_tc * screen_res.xy, 0);
-		back = infrared(gbd, scope_tc * screen_res.xy, scope_tc);
-		if (markswitch_current.x == 1) {
-			back = 1 - back;
-		}
-		if (IMAGE_TYPE == IT_THERMAL_COLOR) {
-		    back = s_heat_map.Sample(smp_base, float2(back.x, 0.5));
-		}
+		back = isSVPActive()
+			? s_prev_frame.Sample(smp_base, scope_tc).rgb
+			: preprocess(SETTINGS, IMAGE_TYPE, scope_tc);
 	} else {
 		bool blur = SETTING(SETTINGS, ST_NVG_BLUR) && floor(shader_param_8.x) != 0 || m_hud_params.x == 0;
 		back = back_image_sample(I.tc0, scope_tc, zoomRotateFactor(), CHROMA_POWER, blur, SETTING(SETTINGS, ST_CHROMATISM));

@@ -561,12 +561,27 @@ float4 main(vf I) : SV_Target
 	float4 dirt = s_dirt.Sample(smp_base, I.tc0);
 	dirt = saturate(float4((1 - dirt.rgb) * 1.5 * calc_model_lq_lighting(lensnormal), dirt.a * DIRT_INTENSITY));
 
-	// Back image
+
+	if (isSVPFrame()) {
 	float2 screen_tc = I.hpos.xy * screen_res.zw;
 	float2 scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) + 0.5;
-
-	if (isSVPFrame())
 		return float4(preprocess(SETTINGS, IMAGE_TYPE, scope_tc), 1.0);
+	}
+
+	float2 scope_tc;
+
+	if (isSVPActive()) {
+	float tex_delta = ddy(I.tc0.y);
+	float scn_delta = ddy(I.hpos.y / screen_res.xy);
+
+	// Rough approximation to fix coords for SVP camera
+	float fov_fix = (scn_delta / tex_delta) * 2.0;
+		float2 screen_tc = I.tc0;
+	scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) * float2(screen_res.y/screen_res.x, 1.0) * fov_fix + 0.5;
+	} else {
+		float2 screen_tc = I.hpos.xy * screen_res.zw;
+		scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) + 0.5;
+	}
 
 	if (RETICLE_TYPE == RT_SPECTER) {
 		float smooth_zoom_part = smoothstep(0, 1, zoom_part);

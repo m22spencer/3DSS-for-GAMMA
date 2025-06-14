@@ -539,9 +539,14 @@ float4 main(vf I) : SV_Target
 		else
 			mark_shadow = float4(0, 0, 0, 0);
 	}
+
+	// Shadow has been way off since switching to magnification
+	//   this is just a quick hack to make it bearable
+	float2 tcc = (I.tc0 - 0.5) * float2(screen_res.y/screen_res.x, 1.0) + 0.5;
+	float factor = 1.5;
 	
 	// Parallax shadow
-	float2 exit_pupil_tc = project(I.tc0, V_tangent.xy, -EYE_RELIEF, EXIT_PUPIL * (SETTING(SETTINGS, ST_SEE_THROUGH) ? 1 : m_hud_params.x));
+	float2 exit_pupil_tc = project(I.tc0, V_tangent.xy, -EYE_RELIEF, factor * EXIT_PUPIL * (SETTING(SETTINGS, ST_SEE_THROUGH) ? 1 : m_hud_params.x));
 	float4 shadow_texture = sample_shadow(exit_pupil_tc, SHADOW_WIDTH + 0.02 * (current_zoom - 1));
 	if (!SETTING(SETTINGS, ST_PARALLAX_SHADOW)) {
 		shadow_texture *= 1 - m_hud_params.x;
@@ -576,7 +581,7 @@ float4 main(vf I) : SV_Target
 
 	// Rough approximation to fix coords for SVP camera
 	float fov_fix = (scn_delta / tex_delta) * 2.0;
-		float2 screen_tc = I.tc0;
+		float2 screen_tc = project(I.tc0, V_tangent.xy, RETICLE_PROJECT * 0.75, RETICLE_SIZE);
 	scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) * float2(screen_res.y/screen_res.x, 1.0) * fov_fix + 0.5;
 	} else {
 		float2 screen_tc = I.hpos.xy * screen_res.zw;

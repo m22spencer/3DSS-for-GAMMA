@@ -576,13 +576,13 @@ float4 main(vf I) : SV_Target
 	float2 scope_tc;
 
 	if (isSVPActive()) {
-	float tex_delta = ddy(I.tc0.y);
-	float scn_delta = ddy(I.hpos.y / screen_res.xy);
+		float tex_delta = ddy(I.tc0.y);
+		float scn_delta = ddy(I.hpos.y / screen_res.xy);
 
-	// Rough approximation to fix coords for SVP camera
-	float fov_fix = (scn_delta / tex_delta) * 2.0;
+		// Rough approximation to fix coords for SVP camera
+		float fov_fix = (scn_delta / tex_delta) * 2.0 * 1.5;
 		float2 screen_tc = project(I.tc0, V_tangent.xy, RETICLE_PROJECT * 0.75, RETICLE_SIZE);
-	scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) * float2(screen_res.y/screen_res.x, 1.0) * fov_fix + 0.5;
+		scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) * float2(screen_res.y/screen_res.x, 1.0) * fov_fix + 0.5;
 	} else {
 		float2 screen_tc = I.hpos.xy * screen_res.zw;
 		scope_tc = (1.0 / digitalZoom()) * (screen_tc.xy - 0.5) + 0.5;

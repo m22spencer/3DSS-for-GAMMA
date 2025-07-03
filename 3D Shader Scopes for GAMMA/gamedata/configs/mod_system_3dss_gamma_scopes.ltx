@@ -202,6 +202,8 @@
 	s3ds_image_type 	= 3
 	s3ds_reticle_type 	= 8
 	s3ds_min_zoom_1x	= 1
+	magnifications = 1
+	scope_objective_lens_offset = 0, .34, 3, .325
 
 ![echo1] --Thermal, 1x-2x
 	s3ds_chroma_power                = 0.02
@@ -220,6 +222,7 @@
 	ms_count 			= 2
 	ms_colors 			= scope_black, scope_red	
 	magnifications = 2
+	scope_objective_lens_offset = 0, 0, 6.5, 1
 	
 ![acog]		--2.8x
 	s3ds_reticle_size 	= 3.9
@@ -228,6 +231,7 @@
 	s3ds_chroma_power	= 0.031	
 	s3ds_reticle_type 	= 0
 	magnifications = 2.8	
+	scope_objective_lens_offset = 0, 0, 9.3, 1.5
 	
 ![triji]	--acog, 2.8x
 	s3ds_reticle_size 	= 3.9
@@ -236,6 +240,7 @@
 	s3ds_chroma_power	= 0.031		
 	s3ds_reticle_type 	= 0
 	magnifications = 2.8	
+	scope_objective_lens_offset = 0, 0, 9.25, 1.5
 
 ![trihawk]	--3x
 	s3ds_reticle_size 	= 3.2
@@ -243,18 +248,21 @@
 	s3ds_exit_pupil		= 0.66
 	s3ds_chroma_power	= 0.028
 	magnifications = 3
+	scope_objective_lens_offset = 0, 0, 5, .9
 	
 ![gee36]	--3x
 	s3ds_reticle_size 	= 3.2
 	s3ds_eye_relief 	= 2
 	s3ds_exit_pupil		= 0.65	
 	magnifications = 3
+	scope_objective_lens_offset = 0, 0, 16.3, .6
 	
 ![side]	--3.5x
 	s3ds_chroma_power   = 0.1
     s3ds_exit_pupil     = 0.38
     s3ds_lens_color     = lens_old_yellow
 	magnifications = 3.5
+	scope_objective_lens_offset = 0, 0, 57.8, 1
 
 ![vulcan] --NVG, 3.5x
 	s3ds_reticle_size 	= 3	
@@ -265,11 +273,13 @@
 	s3ds_reticle_type	= 7
 	ms_count 			= 2
 	magnifications = 3.5
+	scope_objective_lens_offset = -0.5, 0, 11.25, 1.55
 	
 ![susat]	--4x
 	s3ds_reticle_size 	= 3.7
 	s3ds_eye_relief 	= 2.35
 	magnifications = 4
+	scope_objective_lens_offset = 0, 0, 8, 1
 
 ![susatov]	--4x, l85 sight
 	s3ds_reticle_size 	= 3.7
@@ -288,6 +298,7 @@
 	s3ds_exit_pupil		= 0.35
 	s3ds_chroma_power	= 0.035
 	magnifications = 4
+	scope_objective_lens_offset = 0, 0, 7.7, .8
 	
 ![specter] --Dynamic, Rotating Scope, 1x or 4x, zoom_step_count = 1
 	s3ds_reticle_size 	= 6.1
@@ -297,6 +308,7 @@
 	ms_count 			= 3
 	ms_colors			= scope_black, scope_red_dim, scope_red
 	magnifications = 1,4
+	scope_objective_lens_offset = 0, 0, 7.6, 0.9
 	
 ![spec_alt] --Dynamic, specter, Rotating Scope, 1x OR 4x, zoom_step_count = 1
 	s3ds_reticle_size 	= 6.1
@@ -306,6 +318,7 @@
 	ms_count 			= 3
 	ms_colors			= scope_black, scope_red_dim, scope_red
 	magnifications = 1,4
+	scope_objective_lens_offset = 0, 0, 7.6, 0.9
 	
 ![tac30]	--Dynamic, 1x-4x
 	s3ds_reticle_size 	= 4
@@ -313,6 +326,7 @@
 	s3ds_exit_pupil		= 0.4
 	s3ds_chroma_power	= 0.04	
 	magnifications = 1-4
+	scope_objective_lens_offset = 0, 0, 13.5, .6
 	
 ![p4x32] --Not Adjusted                                  		
 	s3ds_reticle_size 	= 4.2
@@ -360,12 +374,14 @@
 	s3ds_reticle_type	= 7
 	ms_count 			= 2
 	magnifications = 1-6
+	scope_objective_lens_offset = 0, 0, 9.25, 1.2
 	
 ![razorhd] --Dynamic, 1x-6x
 	s3ds_reticle_size 	= 4.1
 	s3ds_eye_relief 	= 2.3
 	s3ds_chroma_power	= 0		
 	magnifications = 1-6
+	scope_objective_lens_offset = 0, 0, 12, .7
 	
 ![ps320] --Dynamic, Rotating Scope, 1x OR 6x, zoom_step_count = 1
 	s3ds_reticle_size 	= 4.1
@@ -376,6 +392,7 @@
 	ms_count 			= 3
 	ms_colors			= scope_black, scope_red_dim, scope_red	
 	magnifications = 1,6
+	scope_objective_lens_offset = 0, 0, 9, 1
 	
 ;--------------------------------------------------------------
 ;----------------------Sniper Scopes---------------------------	
